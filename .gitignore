@@ -1,0 +1,44 @@
+# ---- Python ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.pickle
+
+# Virtual environment
+venv/
+.env/
+.env.*
+
+# ---- Jupyter/VS Code ----
+.ipynb_checkpoints/
+.vscode/
+.history/
+*.code-workspace
+
+# macOS files
+.DS_Store
+
+# ---- Data files (keep synthetic CSVs, ignore large raw data) ----
+data/raw/
+*.csv~
+*.tmp
+*.log
+
+# If you want to IGNORE generated synthetic data (optional):
+# data/synthetic/*.csv
+
+# ---- Build / Cache ----
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+
+# ---- Logs ----
+*.log
+
+# ---- Other ----
+*.swp
+*.swo
