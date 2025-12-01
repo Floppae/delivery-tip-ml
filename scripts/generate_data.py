@@ -5,7 +5,9 @@ def main():
     df = generate_dataset()
     
     # save to CSV
-    output_path = "data/synthetic/synthetic_delivery_data.csv"
+    # Note: change filepath based on current directory
+    # Was previously /data/synthetic/synthetic_delivery_data.csv
+    output_path = "../data/synthetic/synthetic_delivery_data.csv"
     df.to_csv(output_path, index=False)
     
     print(f"Generated dataset with {len(df)} rows.")
