@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.metrics import mean_absolute_error
 
@@ -38,7 +38,7 @@ models = {
 }
 
 # We will use 3 models: Linear, Lasso, Ridge and see which one is best
-print("\n" + "=" * 10 + " Our Models " + "=" * 10)
+print("\n" + "=" * 10 + " Our Linear Models " + "=" * 10)
 
 # Iterate through each model, fit it, predict values with it, and calculate MAE.
 # Save the values into a second dictionary (key:name | value:object containing model performance)
@@ -69,3 +69,31 @@ best_model_name = best_model[0]
 best_mae = best_model[1].get('mae', 0)
 print("\n" + "=" * 10 + " Best Model " + "=" * 10)
 print(f"{best_model_name} MAE: {best_mae:.3f}\n")
+
+# To capture nonlinear trends, the code below utilizes polynomial features to capture trends along curves instead of along straight lines
+# With polynomial features, we simply create more features with the feature raised to "degree"
+# Essentially, we create more features for the model to work with, adding flexibility resulting in the ability to capture curves
+# It's important to not make the degree too high as this would cause overfitting and unecessary computational cost
+print("=" * 10 + " Polynomial Regression " + "=" * 10)
+
+# Create polynomial features for model + fit the features
+# Additionally, create a test set to test out model with
+poly = PolynomialFeatures(degree=2)
+X_train_poly = poly.fit_transform(X_train_scaled)
+X_test_poly = poly.transform(X_test_scaled)
+
+# Print amount of columns before and after adding polynomial features (.shape returns (row,col) number so .shape[1] returns number of columns, or, features)
+print(f"Starting number of features: {X_train_scaled.shape[1]}")
+print(f"Resulting number of features: {X_train_poly.shape[1]}")
+
+# Once we have our new features, fit a model with the new features, create prediction set, calculate error based on actual data.
+poly_model = LinearRegression()
+poly_model.fit(X_train_poly, y_train)
+y_pred = poly_model.predict(X_test_poly)
+mae_poly = mean_absolute_error(y_test, y_pred)
+
+print(f"Polynomial Regression MAE: {mae_poly:.3f}")
+if(mae_poly < best_mae):
+    print(f"Polynomial Regression performed better than linear Regression by {best_mae - mae_poly:.3f}")
+else:
+    print(f"Linear Regression performed better than Polynomial Regression by {mae_poly - best_mae:.3f}")
