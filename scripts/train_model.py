@@ -70,6 +70,69 @@ best_mae = best_model[1].get('mae', 0)
 print("\n" + "=" * 10 + " Best Model " + "=" * 10)
 print(f"{best_model_name} MAE: {best_mae:.3f}\n")
 
+# How do we know that the parameters we set (alpha=0.1, alpha=1.0, degree=2) are the most optimal?
+# We do not. Thus, we can play around with different parameters to see which parameters allow for optimal performance
+print("=" * 10 + " Hyperparameter Tuning " + "=" * 10)
+
+# Test alphas for Ridge and Lasso Regressions
+print("\nTesting Ridge and Lasso Regression alphas:")
+alphas_to_test = [0.01, 0.1, 1.0, 10.0, 100.0]
+best_ridge_alpha = None
+best_ridge_mae = float('inf')
+best_lasso_alpha = None
+best_lasso_mae = float('inf')
+
+for alpha in alphas_to_test:
+
+    ridge = Ridge(alpha = alpha)
+    ridge.fit(X_train_scaled, y_train)
+    y_pred_ridge = ridge.predict(X_test_scaled)
+    ridge_mae = mean_absolute_error(y_test, y_pred_ridge)
+    
+    if ridge_mae < best_ridge_mae:
+        best_ridge_mae = ridge_mae
+        best_ridge_alpha = alpha
+
+    print(f"RIDGE alpha = {alpha} | MAE: {ridge_mae:.3f}")
+
+    lasso = Lasso(alpha = alpha)
+    lasso.fit(X_train_scaled, y_train)
+    y_pred_lasso = lasso.predict(X_test_scaled)
+    lasso_mae = mean_absolute_error(y_test, y_pred_lasso)
+
+    if lasso_mae < best_lasso_mae:
+        best_lasso_mae = lasso_mae
+        best_lasso_alpha = alpha
+    
+    print(f"LASSO alpha = {alpha} | MAE: {ridge_mae:.3f}")
+
+print(f"\nBest Ridge alpha: {best_ridge_alpha} (MAE: {best_ridge_mae:.3f})")
+print(f"Best Lasso alpha: {best_lasso_alpha} (MAE: {best_lasso_mae:.3f})")
+
+# Test degrees for polynomial features
+print("\nTesting Polynomial Regression degrees:")
+test_degrees = [2, 3, 4]
+best_poly_degree = None
+best_poly_mae = float('inf')
+
+for degree in test_degrees:
+    poly = PolynomialFeatures(degree=degree)
+    X_train_poly = poly.fit_transform(X_train_scaled)
+    X_test_poly = poly.transform(X_test_scaled)
+    
+    poly_model = LinearRegression()
+    poly_model.fit(X_train_poly, y_train)
+    y_pred_poly = poly_model.predict(X_test_poly)
+    poly_mae = mean_absolute_error(y_test, y_pred_poly)
+    
+    print(f"degree={degree} | MAE: {poly_mae:.3f}")
+    
+    if poly_mae < best_poly_mae:
+        best_poly_mae = poly_mae
+        best_poly_degree = degree
+
+print(f"Best Polynomial degree: {best_poly_degree}\n")
+
 # To capture nonlinear trends, the code below utilizes polynomial features to capture trends along curves instead of along straight lines
 # With polynomial features, we simply create more features with the feature raised to "degree"
 # Essentially, we create more features for the model to work with, adding flexibility resulting in the ability to capture curves
@@ -78,7 +141,7 @@ print("=" * 10 + " Polynomial Regression " + "=" * 10)
 
 # Create polynomial features for model + fit the features
 # Additionally, create a test set to test out model with
-poly = PolynomialFeatures(degree=2)
+poly = PolynomialFeatures(degree=best_poly_degree)
 X_train_poly = poly.fit_transform(X_train_scaled)
 X_test_poly = poly.transform(X_test_scaled)
 
